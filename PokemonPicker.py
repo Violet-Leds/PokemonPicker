@@ -8,6 +8,9 @@
 #    |                        |
 #    |      PokemonPicker     |
 #    |                        |
+#    |        Project:        |
+#    |      PokemonPicker     |
+#    |                        |
 #    |        Created:        |
 #    |       2025-11-14       |
 #    |      Version: 0.1      |
@@ -24,30 +27,21 @@
 
 
 from time import time
-from Python_Utils.Templates.ProgramLoop2 import programLoop
+from Projects.Python_Utils.Templates.ProgramLoop2 import programLoop
 t1: float = time()
 head_l: int = 50
 
 import random
-
-
-class Pokemon:
-    
-    
-    def __init__(self, pokeId: int = -1, name: str = "Unknown") -> None:
-        self.pokeId: int = pokeId
-        self.name: str = name
-        self.pokemons_it_has_defeated: list[Pokemon] = []
-        self.pokemon_it_was_defeated_by: Pokemon | None = None
-
-# --- End of class --- #
+from Pokemon import Pokemon
+from Ranking import Ranking, Rankable
 
 
 
 
 
-names: list[str] = ["Bulbasaur", "Ivysaur", "Venusaur", "Charmander", "Charmeleon", 
-                        "Charizard", "Squirtle", "Wartortle", "Blastoise", "Caterpie"]
+names: list[str] = ["Bulbasaur", "Ivysaur", "Venusaur",
+                    "Charmander", "Charmeleon", "Charizard",
+                    "Squirtle", "Wartortle", "Blastoise"]
     
 pokemons: list[Pokemon] = [Pokemon(i, names[i - 1]) for i in range(1, 11)]
 
@@ -66,14 +60,17 @@ def main() -> None:
         print("\n- New Round -\n") # debug
         not_compared_yet_this_round = qualifies_for_next_round[:]
         qualifies_for_next_round = []
-        oneRound(not_compared_yet_this_round, eliminated, qualifies_for_next_round)
+        oneRound(not_compared_yet_this_round,
+                 eliminated, qualifies_for_next_round)
 
         # When there's only one pokemon left
         if len(qualifies_for_next_round) == 1:
             next_favorite: Pokemon = qualifies_for_next_round.pop()
-            print(f"\n--- {next_favorite.name} has been added to the ranking! ---\n")
+            print(
+                f"\n--- {next_favorite.name}"
+                " has been added to the ranking! ---\n")
             print(f"Bringing back those defeated by {next_favorite.name}")
-            for loser in next_favorite.pokemons_it_has_defeated:
+            for loser in next_favorite.lessers:
                 eliminated.remove(loser)
                 qualifies_for_next_round.append(loser)
                 print(loser.name) # debug
@@ -113,7 +110,8 @@ def oneRound(not_compared_yet_this_round: list[Pokemon],
 
 
 
-def compare(contender1: Pokemon, contender2: Pokemon) -> tuple[Pokemon, Pokemon]:
+def compare(contender1: Pokemon, contender2: Pokemon
+            ) -> tuple[Pokemon, Pokemon]:
     winner: Pokemon
     loser: Pokemon
 
@@ -128,7 +126,7 @@ def compare(contender1: Pokemon, contender2: Pokemon) -> tuple[Pokemon, Pokemon]
     else: winner, loser = contender2, contender1
 
     winner.pokemons_it_has_defeated.append(loser)
-    loser.pokemon_it_was_defeated_by = winner
+    loser.pokemons_it_was_defeated_by.append(winner)
     return winner, loser
 
 # --- End of function --- #
