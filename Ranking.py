@@ -13,11 +13,11 @@
 #    |                        |
 #    |        Created:        |
 #    |      Su 2026-09-13     |
-#    |      Version: 0.1      |
+#    |      Version: 0.3      |
 #    |                        |
 #    |      Last update:      |
-#    |      Su 2026-09-13     |
-#    |      Version: 0.2      |
+#    |      Su 2026-09-17     |
+#    |      Version: 0.3      |
 #    |                        |
 #    | ----------||---------- |
 #    |   _____________________|___
@@ -25,27 +25,153 @@
 #    \_/________________________/
 
 from typing import cast, Any
+from random import shuffle
 
 type JSONValue = (int | float | bool | str | None
                   | list[JSONValue] | dict[str, JSONValue])
-
-
-class Ranking[T]:
-    type _FaceOffResult = tuple[list[Rankable[T]], list[Rankable[T]]]
+FACE_OFF_SIZE: int = 2
+names: list[str] = ["Bulbasaur", "Ivysaur", "Venusaur",
+                    "Charmander", "Charmeleon", "Charizard",
+                    "Squirtle", "Wartortle", "Blastoise"]
     
-    def __init__(self) -> None:
+class RankingSession[T]:
+    """
+    One ranking with one set of settings.
+    """
+    type _FaceOffResult = tuple[list[Rankable[T]], list[Rankable[T]]]
+    type _History = list[_FaceOffResult]
+    
+    def __init__(self, contenders: list[T] = []) -> None:
+        self.history: RankingSession._History = []
+        self.settings: dict[str, int] = {}
+        self.contenders: list[Rankable[T]] = []
+        self._setContendersFromSettings(contenders)
+        self.unranked: list[Rankable[T]] = self.contenders[:]
         self.ranking: list[Rankable[T]] = []
-        self.history: list[Ranking._FaceOffResult] = []
+        self.eliminated: list[Rankable[T]] = []
+        self.this_round: list[Rankable[T]] = []
+        self.next_round: list[Rankable[T]] = self.unranked[:]
     # --- End of function --- #
-# --- End of class Ranking --- #
 
 
 
 
 
-class RankingSession:
-    def __init__(self) -> None:
-        pass
+    def run(self) -> None:
+        """
+        Run the ranking session.
+        """
+        while self.unranked:
+            self._oneRound()
+            self._checkIfOneLeft()
+        self._showRanking()
+    # --- End of function --- #
+
+
+
+
+
+    def _showRanking(self) -> None:
+        print("Done! Here's the final ranking:")
+        for i, ranked in enumerate(self.ranking):
+            print(f"{i + 1}. {ranked.name}")
+    # --- End of function --- #
+
+
+
+
+
+    def _checkIfOneLeft(self) -> None:
+        if len(self.next_round) == 1:
+            next_favorite: Rankable[T] = self.next_round.pop()
+            self.unranked.remove(next_favorite)
+            self.ranking.append(next_favorite)
+            print(f"--- {next_favorite.name} "
+                  "has been added to the ranking! ---")
+            print(f"Bringing back those defeated by {next_favorite.name}")
+            for lesser in next_favorite.lessers:
+                self.eliminated.remove(lesser)
+                self.next_round.append(lesser)
+                print(lesser.name) ### debug ###
+            input() ### debug ###
+    # --- End of function --- #
+
+
+
+
+
+    def _oneRound(self) -> None:
+        """
+        One round
+        """
+        print("\n- New Round -\n") ### debug ###
+        self.this_round = self.next_round[:]
+        self.next_round = []
+        shuffle(self.this_round)
+        print([cont.name for cont in self.this_round]) ### debug ###
+                    
+        while self.this_round:
+            if len(self.this_round) == 1:
+                print(f"\nLast member of round {self.this_round[0].name}"
+                      " transfered to next round")
+                self.next_round.append(self.this_round.pop())
+                break
+            self._oneFaceOff()
+
+        print([cont.name for cont in self.next_round]) ### debug ###
+    # --- End of function --- #
+
+
+
+
+
+    def _oneFaceOff(self) -> None:
+        """
+        One face-off
+        """
+        print() ### debug ###
+        face_off_contenders: list[Rankable[T]] = [
+            self.this_round.pop() 
+            for _ in range(min(FACE_OFF_SIZE, len(self.this_round)))]
+        
+        chosen_indicies: list[int] = self._compare(face_off_contenders)
+        winners: list[Rankable[T]] = [
+            face_off_contenders.pop(n) for n in chosen_indicies]
+        
+        Rankable[T].updateLessersBetters(face_off_contenders, winners)
+
+        self.next_round += winners
+        self.eliminated += face_off_contenders
+    # --- End of function --- #
+
+
+
+
+
+    def _compare(self, face_off_contenders: list[Rankable[T]]) -> list[int]:
+        """
+        Prints conenders and asks answer.
+        """
+        for i, contender in enumerate(face_off_contenders):
+            print(f"{i + 1}) {contender.name}")
+
+        choice: str = input("Enter the numbers of your favorites"
+                            " among these, separated by commas.\n"
+                            ).replace(" ", "")
+        
+        return sorted([int(n) - 1 for n in choice], reverse=True)
+    # --- End of function --- #
+
+
+
+
+
+    def _setContendersFromSettings(self, contenders: list[T] = []) -> None:
+        """
+        Creates list of contenders from settings.
+        """
+        self.contenders: list[Rankable[T]] = [
+            Rankable(contender) for contender in contenders]
     # --- End of function --- #
 # --- End of class RankingSession --- #
 
@@ -53,13 +179,32 @@ class RankingSession:
 
 
 
+
+
+
+
+
 class Rankable[T]:
+    """
+    One item to be ranked
+    """
     def __init__(self, obj: T) -> None:
         self.obj: T = obj
         self.name: str = getattr(self.obj, "name", str(self.obj))
         self.rank: int = 0
         self.lessers: list[Rankable[T]] = []
         self.betters: list[Rankable[T]] = []
+    # --- End of function --- #
+
+
+
+
+
+    @classmethod
+    def updateLessersBetters(cls, lessers: list[Rankable[T]],
+                             betters: list[Rankable[T]]) -> None:
+        for better in betters : better.lessers += lessers
+        for lesser in lessers : lesser.betters += betters
     # --- End of function --- #
 
 

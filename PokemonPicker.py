@@ -16,8 +16,8 @@
 #    |      Version: 0.1      |
 #    |                        |
 #    |      Last update:      |
-#    |       2025-11-26       |
-#    |      Version: 0.2      |
+#    |       2026-09-17       |
+#    |      Version: 0.3      |
 #    |                        |
 #    | ----------||---------- |
 #    |   _____________________|___
@@ -31,9 +31,8 @@ from Projects.Python_Utils.Templates.ProgramLoop2 import programLoop
 t1: float = time()
 head_l: int = 50
 
-import random
-from Pokemon import Pokemon
-from Ranking import Ranking, Rankable
+from Projects.PokemonPicker.Pokemon import Pokemon
+from Projects.PokemonPicker.Ranking import RankingSession
 
 
 
@@ -43,92 +42,13 @@ names: list[str] = ["Bulbasaur", "Ivysaur", "Venusaur",
                     "Charmander", "Charmeleon", "Charizard",
                     "Squirtle", "Wartortle", "Blastoise"]
     
-pokemons: list[Pokemon] = [Pokemon(i, names[i - 1]) for i in range(1, 11)]
+pokemons: list[Pokemon] = [Pokemon(i + 1, names[i]) for i in range(len(names))]
 
 
 
 def main() -> None:
-    not_compared_yet_this_round: list[Pokemon] = []
-    eliminated: list[Pokemon] = []
-    final_ranking: list[Pokemon] = []
-    not_ranked: list[Pokemon] = [pokemon for pokemon in pokemons]
-    qualifies_for_next_round: list[Pokemon] = not_ranked[:]
-    random.shuffle(qualifies_for_next_round)
-
-    # Loop iterating the rounds
-    while not_ranked:
-        print("\n- New Round -\n") # debug
-        not_compared_yet_this_round = qualifies_for_next_round[:]
-        qualifies_for_next_round = []
-        oneRound(not_compared_yet_this_round,
-                 eliminated, qualifies_for_next_round)
-
-        # When there's only one pokemon left
-        if len(qualifies_for_next_round) == 1:
-            next_favorite: Pokemon = qualifies_for_next_round.pop()
-            print(
-                f"\n--- {next_favorite.name}"
-                " has been added to the ranking! ---\n")
-            print(f"Bringing back those defeated by {next_favorite.name}")
-            for loser in next_favorite.lessers:
-                eliminated.remove(loser)
-                qualifies_for_next_round.append(loser)
-                print(loser.name) # debug
-                
-            not_ranked.remove(next_favorite)
-            final_ranking.append(next_favorite)
-
-    print("\nDone! Here's the final ranking :")
-    for i, pokemon in enumerate(final_ranking):
-        print(f"{i + 1}. {pokemon.name}")
-
-# --- End of function --- #
-
-
-
-
-
-def oneRound(not_compared_yet_this_round: list[Pokemon],
-             eliminated: list[Pokemon],
-             qualifies_for_next_round: list[Pokemon]) -> None:
-    while(len(not_compared_yet_this_round) > 1):
-        contender1: Pokemon = not_compared_yet_this_round.pop()
-        contender2: Pokemon = not_compared_yet_this_round.pop()
-        winner: Pokemon
-        loser: Pokemon
-        winner, loser = compare(contender1, contender2)
-        eliminated.append(loser)
-        qualifies_for_next_round.append(winner)
-
-    random.shuffle(qualifies_for_next_round)
-    if len(not_compared_yet_this_round) == 1:
-        qualifies_for_next_round.append(not_compared_yet_this_round.pop())
-
-# --- End of function --- #
-
-
-
-
-
-def compare(contender1: Pokemon, contender2: Pokemon
-            ) -> tuple[Pokemon, Pokemon]:
-    winner: Pokemon
-    loser: Pokemon
-
-    answer: str = ""
-    while not answer in ["0", "1"]:
-        print(
-            "Which of these Pokémon do you prefer?"
-            f"\n{contender1.name} (0) or {contender2.name} (1) :"
-        )
-        answer = input()
-    if answer == "0": winner, loser = contender1, contender2
-    else: winner, loser = contender2, contender1
-
-    winner.pokemons_it_has_defeated.append(loser)
-    loser.pokemons_it_was_defeated_by.append(winner)
-    return winner, loser
-
+    session: RankingSession[Pokemon] = RankingSession(pokemons)
+    session.run()
 # --- End of function --- #
 
 
