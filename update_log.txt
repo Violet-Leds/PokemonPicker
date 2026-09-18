@@ -10,7 +10,6 @@
 #    |                        |
 #    |        Project:        |
 #    |      PokemonPicker     |
-#    |      Version: 0.2.2    |
 #    |                        |
 #    |        Created:        |
 #    |      We 2025-11-26     |
@@ -23,10 +22,22 @@
 #    \_/________________________/
 
 ###### Update log ######
+### v0.2.3 ###
+- 2026-09-18 - Add the _Event custom type for he elements of
+    RankingSession.history.
+- 2026-09-18 - Separate _oneRound into _oneRound, _resetRound, and
+    _transferLastToNextRound.
+- 2026-09-18 - Append events to RankingSession.history. (session start,
+    new round, face-off result, transfer last to next round, addition to
+    ranking, bringing back those eliminated by newly ranked, session end)
+- 2026-09-18 - Add printHistory() and _faceOffToString() to Ranking Session to
+    print session history at the end.
+
 ### v0.2.2 ###
 - 2026-09-18 - Separate RankingSession._checkIfOneLeft into 3 functions
     with one purpose each. (_putNextFavoriteInRank, _bringBackEliminated,
     _allBettersAreRanked)
+
 ### v0.2.1 ###
 - 2026-09-18 - If no contender is chosen in a face-off, they all advance
     to next round.

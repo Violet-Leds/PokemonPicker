@@ -17,7 +17,7 @@
 #    |                        |
 #    |      Last update:      |
 #    |      We 2026-09-18     |
-#    |     Version: 0.2.1     |
+#    |     Version: 0.2.3     |
 #    |                        |
 #    | ----------||---------- |
 #    |   _____________________|___
@@ -40,12 +40,12 @@ class RankingSession[T]:
     One ranking with one set of settings.
     """
     type _FaceOffResult = tuple[list[Rankable[T]], list[Rankable[T]]]
-    type _History = list[_FaceOffResult]
+    type _Event = _FaceOffResult | str
+    type _History = list[_Event]
     
     def __init__(self, contenders: list[T] = []) -> None:
-        self.history: RankingSession._History = []
+        self.history: RankingSession[T]._History = []
         self.settings: dict[str, int] = {}
-        self.contenders: list[Rankable[T]] = []
         self._setContendersFromSettings(contenders)
         self.unranked: list[Rankable[T]] = self.contenders[:]
         self.ranking: list[Rankable[T]] = []
@@ -62,10 +62,37 @@ class RankingSession[T]:
         """
         Run the ranking session.
         """
+        self.history.append("Session start")
         while self.unranked:
             self._oneRound()
             if len(self.next_round) == 1 : self._putNextFavoriteInRank()
+        self.history.append("Session end")
         self._showRanking()
+        self.printHistory()
+    # --- End of function --- #
+
+
+
+
+
+    def printHistory(self) -> None:
+        print("\nHistory:")
+        for line in self.history:
+            if isinstance(line, str) : print(line)
+            else : print(self._faceOffToString(line))
+    # --- End of function --- #
+
+
+
+
+
+    def _faceOffToString(self, face_off: _FaceOffResult) -> str:
+        face_off_str: str = (
+            "Face-off:\n"
+            f"    Winners : {", ".join([w.name for w in face_off[0]])}\n"
+            f"    Losers : {", ".join([l.name for l in face_off[1]])}"
+        )
+        return face_off_str
     # --- End of function --- #
 
 
@@ -84,10 +111,13 @@ class RankingSession[T]:
 
     def _putNextFavoriteInRank(self) -> None:
         next_favorite: Rankable[T] = self.next_round.pop()
+        self.history.append(f"{next_favorite.name} added to ranking")
         self.unranked.remove(next_favorite)
         self.ranking.append(next_favorite)
-        print(f"--- {next_favorite.name} has been added to the ranking! ---")
-        print(f"Bringing back those defeated by {next_favorite.name}")
+
+        print(f"--- {next_favorite.name}"
+              " has been added to the ranking! ---") ### debug ###
+        
         self._bringBackEliminated(next_favorite)
         input() ### debug ###
     # --- End of function --- #
@@ -97,11 +127,17 @@ class RankingSession[T]:
 
 
     def _bringBackEliminated(self, next_favorite: Rankable[T]) -> None:
+        print("Bringing back those defeated by "
+                      f"{next_favorite.name}") ### debug ###
+
         for lesser in next_favorite.lessers:
             if self._allBettersAreRanked(lesser):
                 self.eliminated.remove(lesser)
                 self.next_round.append(lesser)
                 print(lesser.name) ### debug ###
+
+        self.history.append("Bringing back "
+            f"{", ".join([contender.name for contender in self.next_round])}")
     # --- End of function --- #
 
 
@@ -121,18 +157,13 @@ class RankingSession[T]:
         One round
         """
         print("\n- New Round -\n") ### debug ###
-        self.this_round = self.next_round[:]
-        self.next_round = []
-        shuffle(self.this_round)
+        self.history.append("New round")
+        self._resetRound()
         print([cont.name for cont in self.this_round]) ### debug ###
                     
         while self.this_round:
-            if len(self.this_round) == 1:
-                print(f"\nLast member of round {self.this_round[0].name}"
-                      " transfered to next round")
-                self.next_round.append(self.this_round.pop())
-                break
-            self._oneFaceOff()
+            if len(self.this_round) == 1 : self._transferLastToNextRound()
+            else : self.history.append(self._oneFaceOff())
 
         print([cont.name for cont in self.next_round]) ### debug ###
     # --- End of function --- #
@@ -141,7 +172,29 @@ class RankingSession[T]:
 
 
 
-    def _oneFaceOff(self) -> None:
+    def _transferLastToNextRound(self) -> None:
+        print(f"\nLast member of round {self.this_round[0].name}"
+              " transfered to next round") ### debug ###
+        self.history.append(f"{self.this_round[0].name}"
+                            " transfered to next round")
+        self.next_round.append(self.this_round.pop())
+    # --- End of function --- #
+
+
+
+
+
+    def _resetRound(self) -> None:
+        self.this_round = self.next_round[:]
+        self.next_round = []
+        shuffle(self.this_round)
+    # --- End of function --- #
+
+
+
+
+
+    def _oneFaceOff(self) -> _FaceOffResult:
         """
         One face-off
         """
@@ -161,6 +214,7 @@ class RankingSession[T]:
         print(f"Winners : {[w.name for w in winners]}") ### debug ###
         print(f"Losers : {[l.name for l in face_off_contenders]}") ### debug ###
         print(f"Eliminated : {[e.name for e in self.eliminated]}") ### debug ###
+        return (winners, face_off_contenders)
     # --- End of function --- #
 
 
