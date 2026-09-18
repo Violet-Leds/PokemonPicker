@@ -4,7 +4,7 @@
 # \_/| ----------||---------- |
 #    |                        |
 #    |        Code by:        |
-#    |   Élie-David langlois  |
+#    |       Violet-Leds      |
 #    |                        |
 #    |      PokemonPicker     |
 #    |                        |
@@ -16,37 +16,27 @@
 #    |      Version: 0.1      |
 #    |                        |
 #    |      Last update:      |
-#    |      Th 2026-09-17     |
-#    |      Version: 0.3      |
+#    |      We 2026-09-18     |
+#    |     Version: 0.2.1     |
 #    |                        |
 #    | ----------||---------- |
 #    |   _____________________|___
 #    |  /                        /
 #    \_/________________________/
 
-
-
-from time import time
-from Projects.Python_Utils.Templates.ProgramLoop2 import programLoop
-t1: float = time()
-head_l: int = 50
-
 from Projects.PokemonPicker.Pokemon import Pokemon
 from Projects.PokemonPicker.Ranking import RankingSession
 
 
 
-
-
-names: list[str] = ["Bulbasaur", "Ivysaur", "Venusaur",
-                    "Charmander", "Charmeleon", "Charizard",
-                    "Squirtle", "Wartortle", "Blastoise"]
-    
-pokemons: list[Pokemon] = [Pokemon(i + 1, names[i]) for i in range(len(names))]
-
-
-
 def main() -> None:
+    names: list[str] = ["Bulbasaur", "Ivysaur", "Venusaur",
+                        "Charmander", "Charmeleon", "Charizard",
+                        "Squirtle", "Wartortle", "Blastoise"]
+    
+    pokemons: list[Pokemon] = [Pokemon(i + 1, names[i])
+                               for i in range(len(names))]
+    
     session: RankingSession[Pokemon] = RankingSession(pokemons)
     session.run()
 # --- End of function --- #
@@ -55,4 +45,4 @@ def main() -> None:
 
 
 
-if __name__ == "__main__": programLoop(main, t1, head_l)
+if __name__ == "__main__": main()

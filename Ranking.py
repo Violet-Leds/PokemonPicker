@@ -4,20 +4,20 @@
 # \_/| ----------||---------- |
 #    |                        |
 #    |        Code by:        |
-#    |   Élie-David langlois  |
+#    |       Violet-Leds      |
 #    |                        |
-#    |        RankItem        |
+#    |         Ranking        |
 #    |                        |
 #    |        Project:        |
 #    |      PokemonPicker     |
 #    |                        |
 #    |        Created:        |
 #    |      Su 2026-09-13     |
-#    |      Version: 0.3      |
+#    |      Version: 0.2      |
 #    |                        |
 #    |      Last update:      |
-#    |      Th 2026-09-17     |
-#    |      Version: 0.3      |
+#    |      We 2026-09-18     |
+#    |     Version: 0.2.1     |
 #    |                        |
 #    | ----------||---------- |
 #    |   _____________________|___
@@ -26,10 +26,11 @@
 
 from typing import cast, Any
 from random import shuffle
+import sys
 
 type JSONValue = (int | float | bool | str | None
                   | list[JSONValue] | dict[str, JSONValue])
-FACE_OFF_SIZE: int = 2
+FACE_OFF_SIZE: int = 3
 names: list[str] = ["Bulbasaur", "Ivysaur", "Venusaur",
                     "Charmander", "Charmeleon", "Charizard",
                     "Squirtle", "Wartortle", "Blastoise"]
@@ -90,9 +91,13 @@ class RankingSession[T]:
                   "has been added to the ranking! ---")
             print(f"Bringing back those defeated by {next_favorite.name}")
             for lesser in next_favorite.lessers:
-                self.eliminated.remove(lesser)
-                self.next_round.append(lesser)
-                print(lesser.name) ### debug ###
+                if all(l in self.ranking for l in lesser.betters):
+                    try: self.eliminated.remove(lesser)
+                    except ValueError:
+                        print(f"{lesser.name} is not in self.eliminated")
+                        sys.exit()
+                    self.next_round.append(lesser)
+                    print(lesser.name) ### debug ###
             input() ### debug ###
     # --- End of function --- #
 
@@ -142,6 +147,9 @@ class RankingSession[T]:
 
         self.next_round += winners
         self.eliminated += face_off_contenders
+        print(f"Winners : {[w.name for w in winners]}") ### debug ###
+        print(f"Losers : {[l.name for l in face_off_contenders]}") ### debug ###
+        print(f"Eliminated : {[e.name for e in self.eliminated]}") ### debug ###
     # --- End of function --- #
 
 
@@ -158,8 +166,14 @@ class RankingSession[T]:
         choice: str = input("Enter the numbers of your favorites"
                             " among these, separated by commas.\n"
                             ).replace(" ", "")
+
+        chosen_indicies: list[int] = sorted(
+            [int(n) - 1 for n in choice.split(",")], reverse=True)
+
+        if chosen_indicies == []:
+            chosen_indicies = list(range(len(face_off_contenders)))
         
-        return sorted([int(n) - 1 for n in choice], reverse=True)
+        return chosen_indicies
     # --- End of function --- #
 
 
@@ -203,8 +217,18 @@ class Rankable[T]:
     @classmethod
     def updateLessersBetters(cls, lessers: list[Rankable[T]],
                              betters: list[Rankable[T]]) -> None:
-        for better in betters : better.lessers += lessers
-        for lesser in lessers : lesser.betters += betters
+        for better in betters:
+            common: list[str] = [l.name for l in lessers if l in better.lessers]
+            if common:
+                print(f"Error : {common} already in {better.name}'s lessers.")
+                sys.exit()
+            else : better.lessers += lessers
+        for lesser in lessers:
+            common = [l.name for l in betters if l in lesser.betters]
+            if common:
+                print(f"Error : {common} already in {lesser.name}'s betters.")
+                sys.exit()
+            else : lesser.betters += betters
     # --- End of function --- #
 
 

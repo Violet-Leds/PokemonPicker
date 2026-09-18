@@ -4,42 +4,53 @@
 # \_/| ----------||---------- |
 #    |                        |
 #    |        Code by:        |
-#    |   Élie-David langlois  |
+#    |       Violet-Leds      |
 #    |                        |
 #    |       Update Log       |
-#    |      PokemonPicker     |
-#    |     Version: 0.1.2     |
 #    |                        |
-#    |          from:         |
-#    |       2025-11-26       |
+#    |        Project:        |
+#    |      PokemonPicker     |
+#    |      Version: 0.2.1    |
+#    |                        |
+#    |        Created:        |
+#    |      We 2025-11-26     |
 #    |           to:          |
-#    |       2025-11-26       |
+#    |      Fr 2026-09-18     |
 #    |                        |
 #    | ----------||---------- |
 #    |   _____________________|___
 #    |  /                        /
 #    \_/________________________/
 
-##### Update log #####
-- 
+###### Update log ######
+### v0.3.1 ###
+- 2026-09-18 - If no contender is chosen in a face-off, they all advance
+    to next round.
+- 2026-09-18 - Added errors for when adding a better/lesser to a Rankable
+    that already has it in its betters/lessers.
+- 2026-09-18 - Add condition in Ranking.RankingSession._checkIfOneLeft() to
+    only bring back an eliminated Rankable if all its betters are in the
+    ranking.
 
-##### Future updates #####
+###### Future updates ######
 - Add all Pokémon.
 - Add all Unowns.
 - Add diffrent modes (Normal (https://www.dragonflycave.com/favorite.html),
     Ultimate (https://cajunavenger.github.io/), etc.)
 - Add pixel sprites.
-- Add "permanent"/"temporary" tags to each Pokémon form to be able to filter them.
-- Every Pokémon has a overall score that goes up or down every time they get paired against
-    another Pokémon. This creates an overall ranking that transcends individual uses
-    of the program.
-- Mode to bring the number of comparison of everyone level so the overall scores are more accurate.
-    Probability of showing up based on number of times they've been compared before until
-    everyone is the same. Especially usefull when new gen comes out.
-- "Random" option that chooses 2 Pokémon at random and only affects their overall scores.
+- Add "permanent"/"temporary" tags to each Pokémon form to be able to filter
+    them.
+- Every Pokémon has a overall score that goes up or down every time they get
+    paired against another Pokémon. This creates an overall ranking that
+    transcends individual uses of the program.
+- Mode to bring the number of comparison of everyone level so the overall
+    scores are more accurate. Probability of showing up based on number of
+    times they've been compared before until everyone is the same. Especially
+    usefull when new gen comes out. "Random" option that chooses 2 Pokémon at
+    random and only affects their overall scores.
 - Different types of lists (favorite, cutest, etc.)
-- Make Pokémon already in the ranking in Normal mode able to be dragged arround to modify
-    the ranking manually.
+- Make Pokémon already in the ranking in Normal mode able to be dragged arround
+    to modify the ranking manually.
 - Add Restricted Mode where the user manually chooses which Pokémon to include
-    before making the ranking.
+    before making the ranking. Creates a list that can be saved.
 - Add base stats and other info for filters.
