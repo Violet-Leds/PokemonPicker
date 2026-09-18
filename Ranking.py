@@ -64,7 +64,7 @@ class RankingSession[T]:
         """
         while self.unranked:
             self._oneRound()
-            self._checkIfOneLeft()
+            if len(self.next_round) == 1 : self._putNextFavoriteInRank()
         self._showRanking()
     # --- End of function --- #
 
@@ -82,23 +82,34 @@ class RankingSession[T]:
 
 
 
-    def _checkIfOneLeft(self) -> None:
-        if len(self.next_round) == 1:
-            next_favorite: Rankable[T] = self.next_round.pop()
-            self.unranked.remove(next_favorite)
-            self.ranking.append(next_favorite)
-            print(f"--- {next_favorite.name} "
-                  "has been added to the ranking! ---")
-            print(f"Bringing back those defeated by {next_favorite.name}")
-            for lesser in next_favorite.lessers:
-                if all(l in self.ranking for l in lesser.betters):
-                    try: self.eliminated.remove(lesser)
-                    except ValueError:
-                        print(f"{lesser.name} is not in self.eliminated")
-                        sys.exit()
-                    self.next_round.append(lesser)
-                    print(lesser.name) ### debug ###
-            input() ### debug ###
+    def _putNextFavoriteInRank(self) -> None:
+        next_favorite: Rankable[T] = self.next_round.pop()
+        self.unranked.remove(next_favorite)
+        self.ranking.append(next_favorite)
+        print(f"--- {next_favorite.name} has been added to the ranking! ---")
+        print(f"Bringing back those defeated by {next_favorite.name}")
+        self._bringBackEliminated(next_favorite)
+        input() ### debug ###
+    # --- End of function --- #
+
+
+
+
+
+    def _bringBackEliminated(self, next_favorite: Rankable[T]) -> None:
+        for lesser in next_favorite.lessers:
+            if self._allBettersAreRanked(lesser):
+                self.eliminated.remove(lesser)
+                self.next_round.append(lesser)
+                print(lesser.name) ### debug ###
+    # --- End of function --- #
+
+
+
+
+
+    def _allBettersAreRanked(self, lesser: Rankable[T]) -> bool:
+        return all(l in self.ranking for l in lesser.betters)
     # --- End of function --- #
 
 

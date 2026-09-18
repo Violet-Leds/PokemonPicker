@@ -10,7 +10,7 @@
 #    |                        |
 #    |        Project:        |
 #    |      PokemonPicker     |
-#    |      Version: 0.2.1    |
+#    |      Version: 0.2.2    |
 #    |                        |
 #    |        Created:        |
 #    |      We 2025-11-26     |
@@ -23,7 +23,11 @@
 #    \_/________________________/
 
 ###### Update log ######
-### v0.3.1 ###
+### v0.2.2 ###
+- 2026-09-18 - Separate RankingSession._checkIfOneLeft into 3 functions
+    with one purpose each. (_putNextFavoriteInRank, _bringBackEliminated,
+    _allBettersAreRanked)
+### v0.2.1 ###
 - 2026-09-18 - If no contender is chosen in a face-off, they all advance
     to next round.
 - 2026-09-18 - Added errors for when adding a better/lesser to a Rankable
