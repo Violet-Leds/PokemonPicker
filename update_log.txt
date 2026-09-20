@@ -50,7 +50,7 @@
 ###### Future updates ######
 - Add all Pokémon.
 - Add all Unowns.
-- Add diffrent modes (Normal (https://www.dragonflycave.com/favorite.html),
+- Add different modes (Normal (https://www.dragonflycave.com/favorite.html),
     Ultimate (https://cajunavenger.github.io/), etc.)
 - Add pixel sprites.
 - Add "permanent"/"temporary" tags to each Pokémon form to be able to filter
